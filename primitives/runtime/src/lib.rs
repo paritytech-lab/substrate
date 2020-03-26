@@ -354,6 +354,20 @@ impl From<DispatchError> for DispatchOutcome {
 /// or an error message.
 pub type DispatchResult = sp_std::result::Result<(), DispatchError>;
 
+pub struct DispatchResultWithInfo<T: Default> {
+	pub info: T,
+	pub result: DispatchResult,
+}
+
+impl<T: Default> From<DispatchResult> for DispatchResultWithInfo<T> {
+	fn from(f: DispatchResult) -> Self {
+		Self {
+			info: Default::default(),
+			result: f,
+		}
+	}
+}
+
 /// Reason why a dispatch call failed
 #[derive(Eq, PartialEq, Clone, Copy, Encode, Decode, RuntimeDebug)]
 #[cfg_attr(feature = "std", derive(Serialize))]
