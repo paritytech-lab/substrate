@@ -43,7 +43,7 @@ where
 	Call: Member + Dispatchable<Origin=Origin>,
 	Extra: SignedExtension<AccountId=AccountId, Call=Call, DispatchInfo=Info>,
 	Origin: From<Option<AccountId>>,
-	Info: Clone,
+	Info: Clone + traits::SetPostDispatchInfo<Info = Call::PostInfo>,
 {
 	type Call = Call;
 	type DispatchInfo = Info;
@@ -67,7 +67,7 @@ where
 
 	fn apply<U: ValidateUnsigned<Call=Self::Call>>(
 		self,
-		info: Self::DispatchInfo,
+		mut info: Self::DispatchInfo,
 		len: usize,
 	) -> crate::ApplyExtrinsicResult {
 		let (maybe_who, pre) = if let Some((id, extra)) = self.signed {
@@ -79,7 +79,8 @@ where
 			(None, pre)
 		};
 		let res = self.function.dispatch(Origin::from(maybe_who));
-		Extra::post_dispatch(pre, info.clone(), len);
-		Ok(res.map_err(Into::into))
+		info.set_post_dispatch_info(res.info);
+		Extra::post_dispatch(pre, info, len);
+		Ok(res.result.map_err(Into::into))
 	}
 }

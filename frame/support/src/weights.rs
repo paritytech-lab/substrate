@@ -116,6 +116,20 @@ pub struct DispatchInfo {
 	pub pays_fee: bool,
 }
 
+#[derive(Clone, Copy, Eq, PartialEq, Default, RuntimeDebug, Encode, Decode)]
+pub struct PostDispatchInfo {
+	pub pre_info: DispatchInfo,
+	pub unused_weight: Option<Weight>,
+}
+
+impl sp_runtime::traits::SetPostDispatchInfo for PostDispatchInfo {
+	type Info = Weight;
+
+	fn set_post_dispatch_info(&mut self, info: Self::Info) {
+		self.unused_weight = Some(info);
+	}
+}
+
 /// A `Dispatchable` function (aka transaction) that can carry some static information along with
 /// it, using the `#[weight]` attribute.
 pub trait GetDispatchInfo {

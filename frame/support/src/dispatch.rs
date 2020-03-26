@@ -1538,7 +1538,8 @@ macro_rules! decl_module {
 		{
 			type Trait = $trait_instance;
 			type Origin = $origin_type;
-			fn dispatch(self, _origin: Self::Origin) -> $crate::sp_runtime::DispatchResult {
+			type PostInfo = Weight;
+			fn dispatch(self, _origin: Self::Origin) -> $crate::sp_runtime::DispatchResultWithInfo<Weight> {
 				match self {
 					$(
 						$call_type::$fn_name( $( $param_name ),* ) => {
@@ -1566,7 +1567,7 @@ macro_rules! decl_module {
 			pub fn dispatch<D: $crate::dispatch::Dispatchable<Trait = $trait_instance>>(
 				d: D,
 				origin: D::Origin
-			) -> $crate::sp_runtime::DispatchResult {
+			) -> $crate::sp_runtime::DispatchResultWithInfo<Weight> {
 				d.dispatch(origin)
 			}
 		}
@@ -1664,10 +1665,11 @@ macro_rules! impl_outer_dispatch {
 		impl $crate::dispatch::Dispatchable for $call_type {
 			type Origin = $origin;
 			type Trait = $call_type;
+			type PostInfo = Weight;
 			fn dispatch(
 				self,
 				origin: $origin,
-			) -> $crate::sp_runtime::DispatchResult {
+			) -> $crate::sp_runtime::DispatchResultWithInfo<Weight> {
 				$crate::impl_outer_dispatch! {
 					@DISPATCH_MATCH
 					self
